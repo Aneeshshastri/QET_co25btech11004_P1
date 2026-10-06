@@ -117,6 +117,7 @@ class StatevectorSimulator:
         eigenvalues=eigenvalues[eigenvalues>1e-16]
       
         entropy = -np.sum(eigenvalues * np.log2(eigenvalues)) #Shannon?
+        N
         return entropy
 
     def get_statevector(self) -> np.ndarray:
@@ -211,6 +212,7 @@ class StatevectorSimulatorV2:
 
     def cz(self, control: int, target: int) -> None:
         mask_c=1<<control
+        
         mask_target=1<<target
         st_11=((self.indices & mask_c)!=0)*((self.indices & mask_target)!=0)
         self.state[st_11]=-self.state[st_11]
@@ -219,8 +221,9 @@ class StatevectorSimulatorV2:
         subsystem_matrix=self.state.reshape((2**(self.num_qubits//2),2**((self.num_qubits+1)//2)))
         _, S, _ = np.linalg.svd(subsystem_matrix)
         eigenvalues = S**2
+        eigenvalues[eigenvalues>1e-12]
         entropy = -np.sum(eigenvalues * np.log2(eigenvalues)) #Shannon?
-        eigenvalues=eigenvalues[eigenvalues>1e-16]
+        
         return entropy
 
     def get_statevector(self) -> np.ndarray:
@@ -248,7 +251,11 @@ if __name__ == "__main__":
     # Run 2-qubit Grover search marking the state |11> (index 3).
     simulator = StatevectorSimulatorV2(2)
     marked_state = 3
-    simulator.grover_2qubit(marked_state)
+    #simulator.grover_2qubit(marked_state)
+    simulator.reset()
+    simulator.x(0)
+    simulator.cnot(0,1)
+    print(simulator.half_entropy())
     final_state = simulator.get_statevector()
     probabilities = simulator.get_probabilities()
 
